@@ -10,8 +10,6 @@ const dbConfig = {
   database: process.env.DB_NAME,
 };
 
-console.log('Tentando conectar ao banco de dados com a seguinte configuração:');
-
 const connection = mysql.createConnection(dbConfig);
 
 connection.connect((err: any) => {
