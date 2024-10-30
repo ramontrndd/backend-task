@@ -3,6 +3,6 @@ export interface Task {
     name: string;          
     cost: number;                
     endDate: string;        
-    order: number;         
+    order?: number;         
 }
 export default Task;

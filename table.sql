@@ -1,9 +1,9 @@
 CREATE DATABASE IF NOT EXISTS taskdb;
 
-CREATE TABLE tasks (
+CREATE TABLE Tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(255) NOT NULL,
-    cost VARCHAR(255) NOT NULL,
-    endDate DATE,
-    ordem INT NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL,
+    cost DECIMAL(10, 2) NOT NULL,
+    endDate DATE NOT NULL,
+    `order` INT
 );
