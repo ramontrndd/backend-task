@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node src/serve.ts",
+    "dev": "tsx --watch src/serve.ts",
     "prod": "tsc && node dist/index.js"
   },
   "keywords": [],
@@ -18,12 +18,12 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "mysql": "^2.18.1",
-    "nodemon": "^3.1.7",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "tsx": "^4.19.2"
   }
 }

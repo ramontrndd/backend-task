@@ -1,9 +1,10 @@
 CREATE DATABASE IF NOT EXISTS taskdb;
 
-CREATE TABLE Tasks (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+CREATE TABLE tasks (
+    id CHAR(24) PRIMARY KEY DEFAULT (SUBSTRING(UUID(), 1, 24)),
+    name VARCHAR(255) NOT NULL UNIQUE,
     cost DECIMAL(10, 2) NOT NULL,
     endDate DATE NOT NULL,
-    `order` INT
+    `order` INT,
+    UNIQUE (id, name)
 );
