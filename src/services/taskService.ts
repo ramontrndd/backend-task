@@ -4,7 +4,7 @@ import connection from '../config/connection'
 export class TaskService {
   static async getAllTasks(): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      const query = 'SELECT * FROM tasks'
+      const query = 'SELECT * FROM tasks ORDER BY orderTask' // Ordena pelo campo orderTask
       connection.query(query, (err, rows) => {
         if (err) {
           reject(err)
@@ -16,15 +16,33 @@ export class TaskService {
 
   static async createNewTask(task: Task): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      const query = 'INSERT INTO tasks (name,cost,endDate) values(?,?,?)'
+      // Ajuste na query para evitar o erro "ER_UPDATE_TABLE_USED"
+      const insertQuery = `
+        INSERT INTO tasks (name, cost, endDate, orderTask) 
+        VALUES (?, ?, ?, (SELECT COALESCE(MAX(orderTask), 0) + 1 FROM (SELECT orderTask FROM tasks) AS subquery))
+      `
       connection.query(
-        query,
+        insertQuery,
         [task.name, task.cost, task.endDate],
-        (err, results) => {
+        (err, result) => {
           if (err) {
-            reject(err)
+            return reject(err)
           }
-          resolve(results)
+
+          const newTaskId = result.insertId
+
+          // Recuperar a nova tarefa inserida pelo `id`
+          connection.query(
+            'SELECT * FROM tasks WHERE id = ?',
+            [newTaskId],
+            (err, rows) => {
+              if (err) {
+                return reject(err)
+              }
+
+              resolve(rows)
+            }
+          )
         }
       )
     })
@@ -93,6 +111,77 @@ export class TaskService {
         } catch (err) {
           connection.rollback()
           reject(err)
+        }
+      })
+    })
+  }
+
+  static async moveTask(
+    taskId: string,
+    direction: 'up' | 'down'
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      connection.beginTransaction(async (err) => {
+        if (err) return reject(err)
+
+        try {
+          // Obtém a posição atual da tarefa
+          const [[task]]: any = await new Promise((resolve, reject) => {
+            connection.query(
+              'SELECT `order` FROM tasks WHERE id = ?',
+              [taskId],
+              (err, rows) => (err ? reject(err) : resolve(rows))
+            )
+          })
+
+          if (!task) throw new Error('Tarefa não encontrada.')
+
+          const currentOrder = task.order
+          const newOrder =
+            direction === 'up' ? currentOrder - 1 : currentOrder + 1
+
+          // Busca a tarefa adjacente na nova posição
+          const [[adjacentTask]]: any = await new Promise((resolve, reject) => {
+            connection.query(
+              'SELECT id FROM tasks WHERE `order` = ?',
+              [newOrder],
+              (err, rows) => (err ? reject(err) : resolve(rows))
+            )
+          })
+
+          if (!adjacentTask) {
+            throw new Error(
+              direction === 'up'
+                ? 'A tarefa já está na primeira posição.'
+                : 'A tarefa já está na última posição.'
+            )
+          }
+
+          // Realiza a troca das posições
+          await new Promise((resolve, reject) => {
+            connection.query(
+              'UPDATE tasks SET `order` = ? WHERE id = ?',
+              [newOrder, taskId],
+              (err) => (err ? reject(err) : resolve(null))
+            )
+          })
+          await new Promise((resolve, reject) => {
+            connection.query(
+              'UPDATE tasks SET `order` = ? WHERE id = ?',
+              [currentOrder, adjacentTask.id],
+              (err) => (err ? reject(err) : resolve(null))
+            )
+          })
+
+          // Confirma a transação
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => reject(err))
+            }
+            resolve()
+          })
+        } catch (error) {
+          connection.rollback(() => reject(error))
         }
       })
     })

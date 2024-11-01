@@ -5,6 +5,6 @@ CREATE TABLE tasks (
     name VARCHAR(255) NOT NULL UNIQUE,
     cost DECIMAL(11, 2) NOT NULL,
     endDate DATE NOT NULL,
-    `order` INT,
+    `orderTask` INT,
     UNIQUE (id, name)
 );

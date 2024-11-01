@@ -49,4 +49,42 @@ export class Tasks {
       res.status(500).json({ message: err.message })
     }
   }
+  static async reorderTasks(req: Request, res: Response) {
+    try {
+      const { taskIds } = req.body
+      if (!Array.isArray(taskIds)) {
+        return res.status(400).json({ message: 'Lista de IDs inválida.' })
+      }
+
+      await TaskService.reorderTasks(taskIds)
+      res
+        .status(200)
+        .json({ message: 'Ordem das tarefas atualizada com sucesso!' })
+    } catch (err: any) {
+      res.status(500).json({ message: err.message })
+    }
+  }
+
+  static async moveTask(req: Request, res: Response) {
+    try {
+      const { taskId, direction } = req.body
+      if (!taskId || !['up', 'down'].includes(direction)) {
+        return res.status(400).json({ message: 'Parâmetros inválidos.' })
+      }
+
+      await TaskService.moveTask(taskId, direction)
+      res.status(200).json({
+        message: `Tarefa movida para ${direction === 'up' ? 'cima' : 'baixo'} com sucesso!`
+      })
+    } catch (err: any) {
+      if (
+        err.message === 'A tarefa já está na primeira posição.' ||
+        err.message === 'A tarefa já está na última posição.'
+      ) {
+        res.status(400).json({ message: err.message })
+      } else {
+        res.status(500).json({ message: err.message })
+      }
+    }
+  }
 }
