@@ -1,12 +1,11 @@
-import express from 'express';
-import {Tasks} from '../controllers/taskController';
+import express from 'express'
+import { Tasks } from '../controllers/taskController'
 
-const router = express.Router(); 
+const router = express.Router()
 
+router.get('/getTasks', Tasks.getTasks)
+router.post('/createTask', Tasks.createTask)
+router.patch('/updateTask/:id', Tasks.updateTask)
+router.delete('/deleteTask/:id', Tasks.deleteTask)
 
-router.get('/getTasks', Tasks.getTasks); 
-router.post('/createTask', Tasks.createTask);
-router.patch('/updateTask/:id', Tasks.updateTask);
-router.delete('/deleteTask/:id', Tasks.deleteTask);
-
-export default router;
+export default router

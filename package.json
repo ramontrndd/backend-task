@@ -5,7 +5,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx --watch src/serve.ts",
-    "prod": "tsc && node dist/index.js"
+    "prod": "tsc && node dist/index.js",
+    "lint": "eslint . --ext .js,.ts",
+    "format": "prettier --write ."
   },
   "keywords": [],
   "author": "",
@@ -24,6 +26,10 @@
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "cors": "^2.8.5",
+    "eslint": "^9.13.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "prettier": "^3.3.3",
     "tsx": "^4.19.2"
   }
 }
