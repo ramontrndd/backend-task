@@ -126,29 +126,33 @@ export class TaskService {
 
         try {
           // Obtém a posição atual da tarefa
-          const [[task]]: any = await new Promise((resolve, reject) => {
+          const taskResult: any = await new Promise((resolve, reject) => {
             connection.query(
-              'SELECT `order` FROM tasks WHERE id = ?',
+              'SELECT `orderTask` FROM tasks WHERE id = ?',
               [taskId],
               (err, rows) => (err ? reject(err) : resolve(rows))
             )
           })
 
+          const task = taskResult[0]
           if (!task) throw new Error('Tarefa não encontrada.')
 
-          const currentOrder = task.order
+          const currentOrder = task.orderTask
           const newOrder =
             direction === 'up' ? currentOrder - 1 : currentOrder + 1
 
           // Busca a tarefa adjacente na nova posição
-          const [[adjacentTask]]: any = await new Promise((resolve, reject) => {
-            connection.query(
-              'SELECT id FROM tasks WHERE `order` = ?',
-              [newOrder],
-              (err, rows) => (err ? reject(err) : resolve(rows))
-            )
-          })
+          const adjacentTaskResult: any = await new Promise(
+            (resolve, reject) => {
+              connection.query(
+                'SELECT id FROM tasks WHERE `orderTask` = ?',
+                [newOrder],
+                (err, rows) => (err ? reject(err) : resolve(rows))
+              )
+            }
+          )
 
+          const adjacentTask = adjacentTaskResult[0]
           if (!adjacentTask) {
             throw new Error(
               direction === 'up'
@@ -160,14 +164,14 @@ export class TaskService {
           // Realiza a troca das posições
           await new Promise((resolve, reject) => {
             connection.query(
-              'UPDATE tasks SET `order` = ? WHERE id = ?',
+              'UPDATE tasks SET `orderTask` = ? WHERE id = ?',
               [newOrder, taskId],
               (err) => (err ? reject(err) : resolve(null))
             )
           })
           await new Promise((resolve, reject) => {
             connection.query(
-              'UPDATE tasks SET `order` = ? WHERE id = ?',
+              'UPDATE tasks SET `orderTask` = ? WHERE id = ?',
               [currentOrder, adjacentTask.id],
               (err) => (err ? reject(err) : resolve(null))
             )
