@@ -2,6 +2,7 @@ import { Request, Response } from 'express'
 import { TaskService } from '../services/taskService'
 
 export class Tasks {
+  // Obtém todas as tarefas
   static async getTasks(req: Request, res: Response) {
     try {
       const tasks = await TaskService.getAllTasks()
@@ -10,6 +11,8 @@ export class Tasks {
       res.status(500).json({ message: err.message })
     }
   }
+
+  // Cria uma nova tarefa
   static async createTask(req: Request, res: Response) {
     try {
       const task = req.body
@@ -24,6 +27,8 @@ export class Tasks {
       }
     }
   }
+
+  // Atualiza uma tarefa existente
   static async updateTask(req: Request, res: Response) {
     try {
       const task = req.body
@@ -42,6 +47,8 @@ export class Tasks {
       res.status(500).json({ message: err.message })
     }
   }
+
+  // Deleta uma tarefa
   static async deleteTask(req: Request, res: Response) {
     try {
       const id = req.params.id
@@ -51,6 +58,8 @@ export class Tasks {
       res.status(500).json({ message: err.message })
     }
   }
+
+  // Reordena as tarefas
   static async reorderTasks(req: Request, res: Response) {
     try {
       const { taskIds } = req.body
@@ -67,6 +76,7 @@ export class Tasks {
     }
   }
 
+  // Move uma tarefa para cima ou para baixo
   static async moveTask(req: Request, res: Response) {
     try {
       const { taskId, direction } = req.body

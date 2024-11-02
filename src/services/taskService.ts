@@ -4,7 +4,7 @@ import connection from '../config/connection'
 export class TaskService {
   static async getAllTasks(): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      const query = 'SELECT * FROM tasks ORDER BY orderTask' // Ordena pelo campo orderTask
+      const query = 'SELECT * FROM tasks ORDER BY orderTask'
       connection.query(query, (err, rows) => {
         if (err) {
           reject(err)
@@ -16,7 +16,6 @@ export class TaskService {
 
   static async createNewTask(task: Task): Promise<Task[]> {
     return new Promise((resolve, reject) => {
-      // Ajuste na query para evitar o erro "ER_UPDATE_TABLE_USED"
       const insertQuery = `
         INSERT INTO tasks (name, cost, endDate, orderTask) 
         VALUES (?, ?, ?, (SELECT COALESCE(MAX(orderTask), 0) + 1 FROM (SELECT orderTask FROM tasks) AS subquery))
@@ -31,7 +30,7 @@ export class TaskService {
 
           const newTaskId = result.insertId
 
-          // Recuperar a nova tarefa inserida pelo `id`
+          // Recupera a nova tarefa inserida pelo `id`
           connection.query(
             'SELECT * FROM tasks WHERE id = ?',
             [newTaskId],
@@ -47,6 +46,7 @@ export class TaskService {
       )
     })
   }
+
   static async verifyNameTask(name: Task): Promise<Task[]> {
     return new Promise((resolve, reject) => {
       const query = 'SELECT * FROM tasks WHERE name = ?'
@@ -90,6 +90,7 @@ export class TaskService {
       })
     })
   }
+
   static async findTaskByName(name: string): Promise<any> {
     return new Promise((resolve, reject) => {
       connection.query(
@@ -104,6 +105,7 @@ export class TaskService {
       )
     })
   }
+
   static async reorderTasks(taskIds: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
       connection.beginTransaction(async (err) => {
