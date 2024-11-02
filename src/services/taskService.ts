@@ -90,7 +90,20 @@ export class TaskService {
       })
     })
   }
-
+  static async findTaskByName(name: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        'SELECT * FROM tasks WHERE name = ?',
+        [name],
+        (err, results) => {
+          if (err) {
+            return reject(err)
+          }
+          resolve(results[0])
+        }
+      )
+    })
+  }
   static async reorderTasks(taskIds: string[]): Promise<void> {
     return new Promise((resolve, reject) => {
       connection.beginTransaction(async (err) => {

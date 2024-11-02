@@ -29,15 +29,17 @@ export class Tasks {
       const task = req.body
       const id = req.params.id
       task.id = id
-      await TaskService.verifyNameTask(task)
+
+      // Verifica se o nome da tarefa já existe
+      const existingTask = await TaskService.findTaskByName(task.name)
+      if (existingTask && existingTask.id !== id) {
+        return res.status(400).json({ message: 'O nome da tarefa já existe' })
+      }
+
       const updatedTask = await TaskService.updateTask(task)
       res.status(200).json({ message: 'A tarefa foi atualizada com sucesso!' })
     } catch (err: any) {
-      if (err.message === 'Task already exists') {
-        res.status(400).json({ message: 'O nome da tarefa já existe' })
-      } else {
-        res.status(500).json({ message: err.message })
-      }
+      res.status(500).json({ message: err.message })
     }
   }
   static async deleteTask(req: Request, res: Response) {
